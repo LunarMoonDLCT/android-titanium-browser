@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.runner || 'self-hosted' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
         with:
           submodules: true
       
@@ -53,11 +53,18 @@ jobs:
 
       - name: Set
         run: |
-          export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | sed 's/.*\///;s/\-arm64-v8a.apk$//')
+          # Lấy version từ file APK 32-bit hoặc 64-bit trong thư mục release
+          export VERSION=$(find chromium/src/out/release -name '*armeabi-v7a.apk' | head -n 1 | sed 's/.*\///;s/\-armeabi-v7a.apk$//')
+          if [ -z "$VERSION" ]; then
+            export VERSION=$(find chromium/src/out/release -name '*arm64-v8a.apk' | head -n 1 | sed 's/.*\///;s/\-arm64-v8a.apk$//')
+          fi
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab
-          mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk
-          mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk
+          
+          # Đổi tên và đưa ra thư mục gốc để chuẩn bị release
+          # Hỗ trợ cả 3 file: arm64-v8a.aab, arm64-v8a.apk và armeabi-v7a.apk (cho Android 7)
+          mv $(find chromium/src/out/release -name '*arm64-v8a.aab') $VERSION-${{ env.unix_time }}-arm64-v8a.aab || true
+          mv $(find chromium/src/out/release -name '*arm64-v8a.apk') $VERSION-${{ env.unix_time }}-arm64-v8a.apk || true
+          mv $(find chromium/src/out/release -name '*armeabi-v7a.apk') $VERSION-${{ env.unix_time }}-armeabi-v7a.apk || true
 
       - name: Publish
         uses: softprops/action-gh-release@v2
