@@ -8,7 +8,8 @@ min_sdk_version = 24
 is_component_build = false
 is_debug = false
 is_official_build = true
-symbol_level = 1
+symbol_level = 0
+blink_symbol_level = 0
 disable_fieldtrial_testing_config = true
 ffmpeg_branding = "Chrome"
 proprietary_codecs = true
@@ -37,7 +38,6 @@ enable_dav1d_decoder = true
 include_both_v8_snapshots = false
 include_both_v8_snapshots_android_secondary_abi = false
 
-# Drumbrake chạy interpreter-only, an toàn cho máy cũ/siết quyền bộ nhớ nhưng sẽ làm chậm JavaScript.
 v8_enable_drumbrake = true
 v8_drumbrake_bounds_checks = true 
 
